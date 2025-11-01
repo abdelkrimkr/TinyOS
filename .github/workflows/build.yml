@@ -15,7 +15,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y nasm xorriso gcc
+        sudo apt-get install -y nasm xorriso gcc mtools
 
     - name: Build ISO
       run: make all
