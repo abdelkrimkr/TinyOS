@@ -9,7 +9,7 @@ QEMU    = qemu-system-i386
 BUILD   = build
 SRC     = src
 
-OBJS = $(BUILD)/boot.o $(BUILD)/kernel.o $(BUILD)/rtc.o $(BUILD)/idt.o $(BUILD)/keyboard.o $(BUILD)/terminal.o $(BUILD)/graphics.o $(BUILD)/idt_asm.o
+OBJS = $(BUILD)/boot.o $(BUILD)/kernel.o $(BUILD)/rtc.o $(BUILD)/idt.o $(BUILD)/keyboard.o $(BUILD)/terminal.o $(BUILD)/graphics.o $(BUILD)/log.o $(BUILD)/idt_asm.o
 
 all: $(BUILD)/os.iso
 
@@ -52,6 +52,10 @@ $(BUILD)/terminal.o: $(SRC)/terminal.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(BUILD)/graphics.o: $(SRC)/graphics.c
+	mkdir -p $(BUILD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(BUILD)/log.o: $(SRC)/log.c
 	mkdir -p $(BUILD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
