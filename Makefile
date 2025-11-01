@@ -17,7 +17,7 @@ $(BUILD)/os.iso: $(BUILD)/kernel.elf grub.cfg
 	mkdir -p $(BUILD)/iso/boot/grub
 	cp $(BUILD)/kernel.elf $(BUILD)/iso/boot/
 	cp grub.cfg $(BUILD)/iso/boot/grub/
-	grub-mkrescue --isohybrid-gpt-basdat -o $(BUILD)/os.iso $(BUILD)/iso
+	grub-mkrescue -U -r --isohybrid-gpt-basdat -o $(BUILD)/os.iso $(BUILD)/iso
 	@isoinfo -d -i $(BUILD)/os.iso
 
 $(BUILD)/kernel.elf: $(OBJS) linker.ld
