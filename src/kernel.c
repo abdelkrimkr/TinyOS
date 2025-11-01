@@ -49,6 +49,8 @@ void kmain(unsigned long magic, unsigned long addr) {
         log_init();
         log_info("Graphics initialized.");
 
+        draw_window(50, 50, 400, 300, "My Window");
+
         idt_init();
         log_info("IDT initialized.");
 
