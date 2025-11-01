@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "graphics.h"
+#include "window.h"
 #include "log.h"
 #include "idt.h"
 #include "keyboard.h"
@@ -47,7 +48,8 @@ void kmain(unsigned long magic, unsigned long addr) {
 
         log_init();
         log_info("Graphics initialized.");
-        draw_rect(100, 100, 200, 150, 0xFF00FF); // Draw a purple rectangle
+
+        draw_window(50, 50, 400, 300, "My Window");
 
         idt_init();
         log_info("IDT initialized.");
@@ -55,10 +57,6 @@ void kmain(unsigned long magic, unsigned long addr) {
         keyboard_init();
         log_info("Keyboard initialized.");
 
-        terminal_init();
-        log_info("Terminal initialized.");
-
-        terminal_run();
     } else {
         // No framebuffer, what to do?
         // For now, just halt.
