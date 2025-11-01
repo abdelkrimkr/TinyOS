@@ -1,5 +1,5 @@
 
-section .multiboot_header
+section .multiboot
 header_start:
     ; Magic number
     dd 0xE85250D6

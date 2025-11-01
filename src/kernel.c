@@ -49,13 +49,16 @@ void kmain(unsigned long magic, unsigned long addr) {
         log_init();
         log_info("Graphics initialized.");
 
-        draw_window(50, 50, 400, 300, "My Window");
-
         idt_init();
         log_info("IDT initialized.");
 
         keyboard_init();
         log_info("Keyboard initialized.");
+
+        terminal_init();
+        log_info("Terminal initialized.");
+
+        terminal_run();
 
     } else {
         // No framebuffer, what to do?
