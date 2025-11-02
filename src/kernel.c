@@ -2,8 +2,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include "graphics.h"
-#include "window.h"
-#include "log.h"
 #include "idt.h"
 #include "keyboard.h"
 #include "terminal.h"
@@ -46,25 +44,11 @@ void kmain(unsigned long magic, unsigned long addr) {
                       fb_tag->framebuffer_width,
                       fb_tag->framebuffer_height);
 
-        log_init();
-        log_info("Graphics initialized.");
-
-        draw_window(50, 50, 400, 300, "My Window");
-
         idt_init();
-        log_info("IDT initialized.");
-
         keyboard_init();
-        log_info("Keyboard initialized.");
 
         terminal_init();
-        log_info("Terminal initialized.");
-
         terminal_run();
-
-    } else {
-        // No framebuffer, what to do?
-        // For now, just halt.
     }
 
     for (;;) {
