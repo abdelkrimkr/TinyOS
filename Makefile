@@ -2,11 +2,17 @@
 ASM     = nasm
 CC      = gcc
 LD      = ld
-CFLAGS  = -ffreestanding -O2 -Wall -Wextra -m32 -g -I$(SRC)
+DEBUG   ?= 0
+ifeq ($(DEBUG), 1)
+	CFLAGS  = -ffreestanding -O0 -Wall -Wextra -m32 -g -I$(SRC)
+	BUILD   = build/debug
+else
+	CFLAGS  = -ffreestanding -O2 -Wall -Wextra -m32 -g -I$(SRC)
+	BUILD   = build/release
+endif
 LDFLAGS = -m elf_i386 -T linker.ld -nostdlib -g
 QEMU    = qemu-system-i386
 
-BUILD   = build
 SRC     = src
 
 OBJS = $(BUILD)/boot.o $(BUILD)/kernel.o $(BUILD)/rtc.o $(BUILD)/idt.o $(BUILD)/keyboard.o $(BUILD)/terminal.o $(BUILD)/graphics.o $(BUILD)/idt_asm.o
