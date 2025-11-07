@@ -5,36 +5,23 @@ on:
     branches: [ main ]
 
 jobs:
-  build-release:
+  build:
     runs-on: ubuntu-latest
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y nasm xorriso gcc mtools genisoimage grub2-common
+
     - name: Build ISO
       run: make all
-    - name: Upload ISO artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: os-iso-release
-        path: build/release/os.iso
 
-  build-debug:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y nasm xorriso gcc mtools genisoimage grub2-common
-    - name: Build ISO
-      run: make all DEBUG=1
     - name: Upload ISO artifact
       uses: actions/upload-artifact@v4
       with:
-        name: os-iso-debug
-        path: build/debug/os.iso
+        name: os-iso
+        path: build/os.iso

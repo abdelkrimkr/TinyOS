@@ -8,7 +8,7 @@ header_start:
     ; Header length
     dd header_end - header_start
     ; Checksum
-    dd 0x100000000 - (0xE85250D6 + 0 + (header_end - header_start))
+    dd -(0xE85250D6 + 0 + (header_end - header_start))
 
     ; Framebuffer tag
     dw 5
