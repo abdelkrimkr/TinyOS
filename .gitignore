@@ -3,3 +3,12 @@ iso/
 *.o
 *.bin
 *.iso
+*.img
+*.tar.gz
+*.zip
+mtools*
+mcopy
+mdir
+busybox
+xorriso
+limine*
