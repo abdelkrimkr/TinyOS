@@ -1,30 +1,70 @@
 #include <stdint.h>
 
-void kmain(uint64_t multiboot_info_addr) {
-    // Minimal verification: Write to serial port 0x3F8
-    // COM1 is usually 0x3F8. We'll verify this by reading the output in QEMU if redirected.
+#define SERIAL_PORT 0x3f8
+#define C_TEAL  "\033[36m"
+#define C_GREEN "\033[32m"
+#define C_RESET "\033[0m"
 
-    // Initialize serial port (minimal)
-    // Disable interrupts
-    asm volatile("outb %0, %1" : : "a"((uint8_t)0x00), "d"((uint16_t)0x3f8 + 1));
-    // Set baud rate divisor
-    asm volatile("outb %0, %1" : : "a"((uint8_t)0x80), "d"((uint16_t)0x3f8 + 3));
-    asm volatile("outb %0, %1" : : "a"((uint8_t)0x03), "d"((uint16_t)0x3f8 + 0));
-    asm volatile("outb %0, %1" : : "a"((uint8_t)0x00), "d"((uint16_t)0x3f8 + 1));
-    // 8 bits, no parity, one stop bit
-    asm volatile("outb %0, %1" : : "a"((uint8_t)0x03), "d"((uint16_t)0x3f8 + 3));
+static inline void outb(uint16_t port, uint8_t val) {
+    asm volatile("outb %0, %1" : : "a"(val), "d"(port));
+}
 
-    const char *msg = "Kernel initialized successfully.\n";
-    for (const char *p = msg; *p; ++p) {
-        while (1) {
-            uint8_t status;
-            asm volatile("inb %1, %0" : "=a"(status) : "d"((uint16_t)0x3f8 + 5));
-            if (status & 0x20) break; // Wait for transmit empty
+static inline uint8_t inb(uint16_t port) {
+    uint8_t ret;
+    asm volatile("inb %1, %0" : "=a"(ret) : "d"(port));
+    return ret;
+}
+
+void serial_putc(char c) {
+    while ((inb(SERIAL_PORT + 5) & 0x20) == 0);
+    outb(SERIAL_PORT, c);
+}
+
+void log_msg(const char* color, const char* msg) {
+    const char* p;
+    for (p = color; *p; ++p) serial_putc(*p);
+    for (p = msg; *p; ++p) serial_putc(*p);
+    for (p = C_RESET; *p; ++p) serial_putc(*p);
+}
+
+void kmain(uint64_t mb_info) {
+    // Init serial: disable ints, set baud divisor 3 (38400), 8N1
+    outb(SERIAL_PORT + 1, 0x00);
+    outb(SERIAL_PORT + 3, 0x80);
+    outb(SERIAL_PORT, 0x03);
+    outb(SERIAL_PORT + 1, 0x00);
+    outb(SERIAL_PORT + 3, 0x03);
+
+    log_msg(C_TEAL, "\n\n🎨 Palette OS Initializing...\n");
+
+    uint8_t* tag = (uint8_t*)(mb_info + 8);
+    uint32_t total_size = *(uint32_t*)mb_info;
+
+    while (tag < (uint8_t*)(mb_info + total_size)) {
+        uint32_t type = *(uint32_t*)tag;
+        uint32_t size = *(uint32_t*)(tag + 4);
+        if (type == 0) break;
+
+        if (type == 5) { // Framebuffer
+            log_msg(C_GREEN, "✓ Framebuffer found. Painting UI.\n");
+            uint64_t addr = *(uint64_t*)(tag + 8);
+            uint32_t pitch = *(uint32_t*)(tag + 16);
+            uint32_t width = *(uint32_t*)(tag + 20);
+            uint32_t height = *(uint32_t*)(tag + 24);
+            uint8_t bpp = *(uint8_t*)(tag + 28);
+
+            if (bpp == 32) {
+                for (uint32_t y = 0; y < height; y++) {
+                    for (uint32_t x = 0; x < width; x++) {
+                        // Color: 0xFF008080 (Teal)
+                        *(uint32_t*)(addr + y * pitch + x * 4) = 0xFF008080;
+                    }
+                }
+            }
         }
-        asm volatile("outb %0, %1" : : "a"(*p), "d"((uint16_t)0x3f8));
+        tag += ((size + 7) & ~7);
     }
 
-    while (1) {
-        asm volatile("hlt");
-    }
+    log_msg(C_TEAL, "✓ Boot complete. Enjoy the view!\n");
+    while (1) asm volatile("hlt");
 }

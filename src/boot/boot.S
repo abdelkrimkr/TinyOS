@@ -79,7 +79,8 @@ check_long_mode:
 
 no_long_mode:
     movb $'L', %al
-    outb %al, $0x3f8
+    movw $0x3f8, %dx
+    outb %al, %dx
     hlt
 
 setup_paging:
