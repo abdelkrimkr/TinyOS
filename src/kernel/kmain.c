@@ -76,8 +76,12 @@ void kmain(uint64_t multiboot_info_addr) {
     serial_print("\033[2J\033[1;1H");
 
     serial_print("\n");
-    serial_print(COLOR_BOLD COLOR_CYAN "Kernel" COLOR_RESET "\n");
-    serial_print("version 0.1.0\n");
+    // ASCII Art Banner
+    serial_print(COLOR_BOLD COLOR_CYAN "   __ __                     __           \n");
+    serial_print("  / //_/__  _________  ___  / /           \n");
+    serial_print(" / ,< / _ \\/ ___/ __ \\/ _ \\/ /            \n");
+    serial_print("/_/|_/_//_/_/  /_/ /_/ .__/_/             \n");
+    serial_print("                    /_/    v0.1.0         \n" COLOR_RESET);
     serial_print("\n");
 
     log_ok("Serial port initialized.");
@@ -85,6 +89,9 @@ void kmain(uint64_t multiboot_info_addr) {
 
     // Real work done
     log_ok("Kernel loaded.");
+
+    // Final UX touch: Let the user know the system state
+    serial_print("\n" COLOR_GREEN "System halted." COLOR_RESET "\n");
 
     while (1) {
         asm volatile("hlt");
