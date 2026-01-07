@@ -22,3 +22,5 @@ header_start:
     .short 0    /* Flags */
     .long 8     /* Size */
 header_end:
+
+.section .note.GNU-stack,"",@progbits
