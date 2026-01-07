@@ -79,7 +79,8 @@ check_long_mode:
 
 no_long_mode:
     movb $'L', %al
-    outb %al, $0x3f8
+    mov $0x3f8, %dx
+    outb %al, %dx
     hlt
 
 setup_paging:
@@ -148,3 +149,5 @@ p2_table:
 stack_bottom:
     .skip 4096 * 4
 stack_top:
+
+.section .note.GNU-stack,"",@progbits

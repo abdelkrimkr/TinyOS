@@ -76,15 +76,18 @@ void kmain(uint64_t multiboot_info_addr) {
     serial_print("\033[2J\033[1;1H");
 
     serial_print("\n");
-    serial_print(COLOR_BOLD COLOR_CYAN "Kernel" COLOR_RESET "\n");
-    serial_print("version 0.1.0\n");
+    serial_print(COLOR_BOLD COLOR_CYAN "========================================" COLOR_RESET "\n");
+    serial_print(COLOR_BOLD COLOR_CYAN "       KERNEL BOOTLOADER v0.1.0         " COLOR_RESET "\n");
+    serial_print(COLOR_BOLD COLOR_CYAN "========================================" COLOR_RESET "\n");
     serial_print("\n");
 
     log_ok("Serial port initialized.");
     log_info("Booting kernel...");
 
     // Real work done
-    log_ok("Kernel loaded.");
+    log_ok("Kernel loaded successfully.");
+    log_info("System halted.");
+    serial_print(COLOR_YELLOW "Hint: Press Ctrl+A, then X to exit QEMU." COLOR_RESET "\n");
 
     while (1) {
         asm volatile("hlt");
