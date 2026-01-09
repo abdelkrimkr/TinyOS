@@ -1,0 +1,4 @@
+## 2024-05-23 - Supply Chain Security for Build Tools
+**Vulnerability:** The build tool setup script (`setup_tools.sh`) downloaded critical binaries (Busybox, Limine) from the internet without verifying their integrity, exposing the build environment to supply chain attacks (e.g., DNS spoofing, compromised server).
+**Learning:** In a minimal OS environment where external tools are required for bootstrapping, trust is often implicitly placed in the download source. However, without cryptographic verification, the entire OS build can be compromised at the root level by a malicious tool.
+**Prevention:** I implemented SHA256 checksum verification for all downloaded binaries. The checksums are hardcoded in the script, ensuring that the downloaded files match the expected known-good versions. Future tool additions must include checksum verification steps.
