@@ -11,6 +11,7 @@
 #define COLOR_BOLD    "\033[1m"
 
 // I/O Port wrappers
+#ifndef TEST_MODE
 static inline void outb(uint16_t port, uint8_t val) {
     asm volatile("outb %0, %1" : : "a"(val), "d"(port));
 }
@@ -20,6 +21,7 @@ static inline uint8_t inb(uint16_t port) {
     asm volatile("inb %1, %0" : "=a"(ret) : "d"(port));
     return ret;
 }
+#endif
 
 // Serial functions
 void serial_init() {
@@ -42,8 +44,15 @@ void serial_write_char(char a) {
 }
 
 void serial_print(const char *str) {
-    for (const char *p = str; *p; ++p) {
-        serial_write_char(*p);
+    while (*str) {
+        // Wait for transmit holding register to be empty.
+        // In FIFO mode (which we enabled), this means the FIFO is empty.
+        while (is_transmit_empty() == 0);
+
+        // We can now write up to 16 bytes (FIFO size).
+        for (int i = 0; i < 16 && *str; i++) {
+            outb(SERIAL_PORT, *str++);
+        }
     }
 }
 
