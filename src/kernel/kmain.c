@@ -76,8 +76,13 @@ void kmain(uint64_t multiboot_info_addr) {
     serial_print("\033[2J\033[1;1H");
 
     serial_print("\n");
-    serial_print(COLOR_BOLD COLOR_CYAN "Kernel" COLOR_RESET "\n");
-    serial_print("version 0.1.0\n");
+    serial_print("\n");
+    serial_print(COLOR_BOLD COLOR_CYAN "  _  __                    _ " COLOR_RESET "\n");
+    serial_print(COLOR_BOLD COLOR_CYAN " | |/ /___ _ __ _ __   ___| |" COLOR_RESET "\n");
+    serial_print(COLOR_BOLD COLOR_CYAN " | ' // _ \\ '__| '_ \\ / _ \\ |" COLOR_RESET "\n");
+    serial_print(COLOR_BOLD COLOR_CYAN " | . \\  __/ |  | | | |  __/ |" COLOR_RESET "\n");
+    serial_print(COLOR_BOLD COLOR_CYAN " |_|\\_\\___|_|  |_| |_|\\___|_|" COLOR_RESET "\n");
+    serial_print("                 version 0.1.0\n");
     serial_print("\n");
 
     log_ok("Serial port initialized.");
@@ -85,6 +90,9 @@ void kmain(uint64_t multiboot_info_addr) {
 
     // Real work done
     log_ok("Kernel loaded.");
+
+    serial_print(COLOR_BOLD COLOR_RED "\nSystem halted." COLOR_RESET "\n");
+    serial_print("Press " COLOR_BOLD "Ctrl+A" COLOR_RESET ", then " COLOR_BOLD "X" COLOR_RESET " to exit QEMU.\n");
 
     while (1) {
         asm volatile("hlt");
