@@ -22,6 +22,8 @@ static inline uint8_t inb(uint16_t port) {
 }
 
 // Serial functions
+static int fifo_found = 0;
+
 void serial_init() {
     outb(SERIAL_PORT + 1, 0x00);    // Disable all interrupts
     outb(SERIAL_PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
@@ -30,6 +32,10 @@ void serial_init() {
     outb(SERIAL_PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
     outb(SERIAL_PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
     outb(SERIAL_PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
+
+    // Check if FIFO is actually enabled (bits 6 and 7 of IIR are set)
+    uint8_t iir = inb(SERIAL_PORT + 2);
+    fifo_found = (iir & 0xC0) == 0xC0;
 }
 
 int is_transmit_empty() {
@@ -42,8 +48,23 @@ void serial_write_char(char a) {
 }
 
 void serial_print(const char *str) {
-    for (const char *p = str; *p; ++p) {
-        serial_write_char(*p);
+    // If no FIFO, use the slow byte-by-byte method
+    if (!fifo_found) {
+        for (const char *p = str; *p; ++p) {
+            serial_write_char(*p);
+        }
+        return;
+    }
+
+    while (*str) {
+        // Wait for FIFO to be empty (guarantees space for 16 bytes)
+        while (is_transmit_empty() == 0);
+
+        // Burst write up to 16 bytes into the FIFO
+        // This reduces I/O status reads by ~50% for longer strings
+        for (int i = 0; i < 16 && *str; i++) {
+            outb(SERIAL_PORT, *str++);
+        }
     }
 }
 
