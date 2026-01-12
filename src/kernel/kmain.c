@@ -1,4 +1,6 @@
 #include <stdint.h>
+#include "rtc.h"
+#include "io.h"
 
 #define SERIAL_PORT 0x3F8
 
@@ -9,17 +11,6 @@
 #define COLOR_YELLOW  "\033[33m"
 #define COLOR_RED     "\033[31m"
 #define COLOR_BOLD    "\033[1m"
-
-// I/O Port wrappers
-static inline void outb(uint16_t port, uint8_t val) {
-    asm volatile("outb %0, %1" : : "a"(val), "d"(port));
-}
-
-static inline uint8_t inb(uint16_t port) {
-    uint8_t ret;
-    asm volatile("inb %1, %0" : "=a"(ret) : "d"(port));
-    return ret;
-}
 
 // Serial functions
 void serial_init() {
@@ -85,6 +76,39 @@ void kmain(uint64_t multiboot_info_addr) {
 
     // Real work done
     log_ok("Kernel loaded.");
+
+    rtc_time_t t;
+    get_time(&t);
+
+    // Simple itoa for year (limited)
+    serial_print("Current Date: ");
+
+    // Day
+    char d_h = (t.day / 10) + '0';
+    char d_l = (t.day % 10) + '0';
+    serial_write_char(d_h);
+    serial_write_char(d_l);
+    serial_write_char('/');
+
+    // Month
+    char m_h = (t.month / 10) + '0';
+    char m_l = (t.month % 10) + '0';
+    serial_write_char(m_h);
+    serial_write_char(m_l);
+    serial_write_char('/');
+
+    // Year (assuming 4 digits)
+    char y1 = (t.year / 1000) + '0';
+    char y2 = ((t.year / 100) % 10) + '0';
+    char y3 = ((t.year / 10) % 10) + '0';
+    char y4 = (t.year % 10) + '0';
+    serial_write_char(y1);
+    serial_write_char(y2);
+    serial_write_char(y3);
+    serial_write_char(y4);
+
+    serial_print("\n");
+    log_info("RTC time read successfully.");
 
     while (1) {
         asm volatile("hlt");
