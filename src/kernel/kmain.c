@@ -42,8 +42,16 @@ void serial_write_char(char a) {
 }
 
 void serial_print(const char *str) {
-    for (const char *p = str; *p; ++p) {
-        serial_write_char(*p);
+    while (*str) {
+        // Wait for FIFO to be empty (16 bytes space available)
+        // Bit 5 (THRE) == 1 means FIFO is empty
+        while (is_transmit_empty() == 0);
+
+        // Write up to 16 bytes (FIFO size)
+        // Note: FIFO is enabled in serial_init (FCR=0xC7)
+        for (int i = 0; i < 16 && *str; i++) {
+            outb(SERIAL_PORT, *str++);
+        }
     }
 }
 
