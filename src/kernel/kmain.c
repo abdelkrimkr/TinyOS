@@ -42,8 +42,17 @@ void serial_write_char(char a) {
 }
 
 void serial_print(const char *str) {
-    for (const char *p = str; *p; ++p) {
-        serial_write_char(*p);
+    const char *p = str;
+    while (*p) {
+        // Wait for FIFO to be empty
+        // When bit 5 (THRE) is 1, the 16-byte FIFO is empty.
+        while (is_transmit_empty() == 0);
+
+        // Burst write up to 16 bytes to leverage the FIFO
+        // This reduces the number of expensive 'inb' status checks by up to 16x
+        for (int i = 0; i < 16 && *p; ++i, ++p) {
+            outb(SERIAL_PORT, *p);
+        }
     }
 }
 
