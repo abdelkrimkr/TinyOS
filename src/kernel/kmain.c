@@ -42,8 +42,15 @@ void serial_write_char(char a) {
 }
 
 void serial_print(const char *str) {
-    for (const char *p = str; *p; ++p) {
-        serial_write_char(*p);
+    while (*str) {
+        // Wait for FIFO to be empty
+        // We assume 16550 FIFO is enabled in serial_init (0xC7 to FCR)
+        while (is_transmit_empty() == 0);
+
+        // Burst write up to 16 chars (UART FIFO size)
+        for (int i = 0; i < 16 && *str; ++i, ++str) {
+            outb(SERIAL_PORT, *str);
+        }
     }
 }
 
