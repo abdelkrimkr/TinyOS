@@ -42,8 +42,15 @@ void serial_write_char(char a) {
 }
 
 void serial_print(const char *str) {
-    for (const char *p = str; *p; ++p) {
-        serial_write_char(*p);
+    while (*str) {
+        // Wait until the FIFO is empty (THRE bit set)
+        while (is_transmit_empty() == 0);
+
+        // Fill the FIFO (up to 16 bytes)
+        // Since we waited for THRE, we know the FIFO is empty and can accept 16 bytes.
+        for (int i = 0; i < 16 && *str; i++) {
+            outb(SERIAL_PORT, *str++);
+        }
     }
 }
 
